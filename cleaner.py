@@ -25,7 +25,7 @@ def split_sentences(text):
     })
     # use regex to extract the split sentences
     for s in re.finditer(r"Sentence\s[A-Za-z0-9\s()#]+:", output):
-        print(s.group())
+        #print(s.group())
         text_splice = output[s.end()+1:]
         sentence_end = re.search(r"\[Text=", text_splice)
         if sentence_end:
