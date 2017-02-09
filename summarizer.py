@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def summarize(text, ratio=0.2, word_count=None, split=False):
-    print('summarize')
+    #print('summarize')
     """
     Returns a summarized version of the given text using a variation of
     the TextRank algorithm.
@@ -46,7 +46,7 @@ def summarize(text, ratio=0.2, word_count=None, split=False):
         logger.warning("Input text is empty.")
         return
 
-    # If only one sentence is present, the function raises an error (Avoids ZeroDivisionError). 
+    # If only one sentence is present, the function raises an error (Avoids ZeroDivisionError).
     if len(sentences) == 1:
         raise ValueError("input must have more than one sentence")
     

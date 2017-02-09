@@ -16,24 +16,26 @@ except ImportError:
 
 
 def split_sentences(text):
-    print('split sentences')
+    #print('split sentences')
     sen_list = []
     nlp = StanfordCoreNLP('http://localhost:9000')
     output = nlp.annotate(text, properties={
         'annotators': 'ssplit',
         'outputFormat': 'text'
     })
-    for s in re.finditer(r"Sentence\s[A-Za-z1-9\s()#]+:", output):
+    # use regex to extract the split sentences
+    for s in re.finditer(r"Sentence\s[A-Za-z0-9\s()#]+:", output):
+        print(s.group())
         text_splice = output[s.end()+1:]
         sentence_end = re.search(r"\[Text=", text_splice)
         if sentence_end:
-            sen_list.append(text_splice[:sentence_end.start()-2].replace('\n', ' '))
-
+            sen_list.append(text_splice[:sentence_end.start()-1].replace('\n', ' '))
+    print(len(sen_list))
     return(sen_list)
 
 
 def clean_text_by_sentences(text):
-    print('clean text by sentences')
+    #print('clean text by sentences')
     """ Tokenizes a given text into sentences, applying filters and lemmatizing them.
     Returns a SyntacticUnit list. """
     original_sentences = split_sentences(text)
