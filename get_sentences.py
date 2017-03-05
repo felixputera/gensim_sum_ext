@@ -14,6 +14,6 @@ def sentence_from_number(sum_number, text):
     sentences = _format_results(_clean_text_by_sentences(text), True)
     for i in sum_number:
         sum_sentences.append(sentences[i])
-    return '\n'.join(sum_sentences)
+    return sum_sentences
 
 

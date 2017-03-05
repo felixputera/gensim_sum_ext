@@ -1,4 +1,5 @@
 import logging
+import re
 from gensim.summarization.pagerank_weighted import pagerank_weighted as _pagerank
 from gensim.summarization.commons import build_graph as _build_graph
 from gensim.summarization.commons import remove_unreachable_nodes as _remove_unreachable_nodes
@@ -6,7 +7,7 @@ from gensim.summarization.bm25 import get_bm25_weights as _bm25_weights
 from gensim.summarization.summarizer import _build_corpus, _format_results, _extract_important_sentences, summarize_corpus
 from gensim.corpora import Dictionary
 from .cleaner import clean_text_by_sentences as _clean_text_by_sentences
-
+from .get_sentences import get_extracted_number,sentence_from_number
 
 INPUT_MIN_LENGTH = 10
 
@@ -17,8 +18,7 @@ logger = logging.getLogger(__name__)
 # modified gensim summarizer
 
 
-def summarize(text, ratio=0.2, word_count=None, split=False):
-    #print('summarize')
+def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=False):
     """
     Returns a summarized version of the given text using a variation of
     the TextRank algorithm.
@@ -41,14 +41,23 @@ def summarize(text, ratio=0.2, word_count=None, split=False):
     # Gets a list of processed sentences.
     sentences = _clean_text_by_sentences(text)
 
+    if omit_placeholders:
+        sentences_list = _format_results(sentences, True)
+        sentences_original = list(sentences_list)
+        for i in range(len(sentences_list)):
+            sentences_list[i] = re.sub(r'\[.*?\]', '', sentences_list[i])
+        temp_sentences = ' '.join(sentences_list)
+        sentences = _clean_text_by_sentences(temp_sentences)
+    
     # If no sentence could be identified, the function ends.
     if len(sentences) == 0:
         logger.warning("Input text is empty.")
-        return
+        return ""
 
     # If only one sentence is present, the function raises an error (Avoids ZeroDivisionError).
     if len(sentences) == 1:
-        raise ValueError("input must have more than one sentence")
+        logger.warning("input must have more than one sentence")
+        return ""
     
     # Warns if the text is too short.
     if len(sentences) < INPUT_MIN_LENGTH:
@@ -64,6 +73,16 @@ def summarize(text, ratio=0.2, word_count=None, split=False):
     # Sorts the extracted sentences by apparition order in the original text.
     extracted_sentences.sort(key=lambda s: s.index)
 
-    return _format_results(extracted_sentences, split)
-
-
+    if omit_placeholders:
+        extracted_sentences = _format_results(extracted_sentences, False)
+        sentences_list = '\n'.join(sentences_list)
+        sentences_original = '\n'.join(sentences_original)
+        extracted_sentences_number = get_extracted_number(extracted_sentences, sentences_list) 
+        print(extracted_sentences_number)
+        extracted_sentences = sentence_from_number(extracted_sentences_number, sentences_original)
+        if split:
+            return extracted_sentences
+        else:
+            return '\n'.join(extracted_sentences)
+    else:
+        return _format_results(extracted_sentences, split)
