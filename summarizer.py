@@ -7,7 +7,7 @@ from gensim.summarization.bm25 import get_bm25_weights as _bm25_weights
 from gensim.summarization.summarizer import _build_corpus, _format_results, _extract_important_sentences, summarize_corpus
 from gensim.corpora import Dictionary
 from .cleaner import clean_text_by_sentences as _clean_text_by_sentences
-from .get_sentences import get_extracted_number,sentence_from_number
+from .get_sentences import get_extracted_number,get_sentence_from_number
 
 INPUT_MIN_LENGTH = 10
 
@@ -15,10 +15,15 @@ WEIGHT_THRESHOLD = 1.e-3
 
 logger = logging.getLogger(__name__)
 
-# modified gensim summarizer
 
 
 def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=False):
+    """
+    This is a improved version of gensim's summarization library. It includes 
+    the option to exclude placeholders from summary generation & implemented 
+    Stanford's CoreNLP sentence splitter for better sentence splitting 
+    performance
+    """
     """
     Returns a summarized version of the given text using a variation of
     the TextRank algorithm.
@@ -37,10 +42,17 @@ def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=F
     chosen for the summary (defaults at 0.2).
         word_count determines how many words will the output contain.
     If both parameters are provided, the ratio will be ignored.
+    
+    split must be set to true if you want the result in list of sentences,
+    else the result will be returned in chunk of text
+
+    omit_placeholders is set to true if you want the system to not compute the 
+    placeholders: text descriptions in square bracket, i.e. [FORMULA].
     """
     # Gets a list of processed sentences.
     sentences = _clean_text_by_sentences(text)
 
+    # If need to omit [placeholders], delete the [placeholders] first
     if omit_placeholders:
         sentences_list = _format_results(sentences, True)
         sentences_original = list(sentences_list)
@@ -73,13 +85,14 @@ def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=F
     # Sorts the extracted sentences by apparition order in the original text.
     extracted_sentences.sort(key=lambda s: s.index)
 
+    # If omit_placeholders set to true, after processing replace back to original to preserve the [placeholders]
     if omit_placeholders:
         extracted_sentences = _format_results(extracted_sentences, False)
         sentences_list = '\n'.join(sentences_list)
         sentences_original = '\n'.join(sentences_original)
         extracted_sentences_number = get_extracted_number(extracted_sentences, sentences_list) 
         print(extracted_sentences_number)
-        extracted_sentences = sentence_from_number(extracted_sentences_number, sentences_original)
+        extracted_sentences = get_sentence_from_number(extracted_sentences_number, sentences_original)
         if split:
             return extracted_sentences
         else:
