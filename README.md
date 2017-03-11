@@ -10,4 +10,4 @@ Python library to extend gensim's *summarization* library
 1. Install Python 3
 2. Install setuptools
 3. Install dependencies
-    ''' pip install requirements.txt '''
+    ``` pip install requirements.txt ```
