@@ -1,15 +1,17 @@
 import logging
 import re
 
+from pycorenlp import StanfordCoreNLP
 from gensim.summarization.pagerank_weighted import pagerank_weighted as _pagerank
 from gensim.summarization.commons import build_graph as _build_graph
 from gensim.summarization.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from gensim.summarization.bm25 import get_bm25_weights as _bm25_weights
 from gensim.summarization.summarizer import _build_corpus, _format_results, _extract_important_sentences, summarize_corpus
+from gensim.summarization.keywords import keywords
 from gensim.corpora import Dictionary
 
 from .cleaner import clean_text_by_sentences as _clean_text_by_sentences
-from .get_sentences import get_extracted_number,get_sentence_from_number
+from .get_sentences import get_extracted_number,get_sentence_from_number, get_word_count
 
 INPUT_MIN_LENGTH = 10
 
@@ -101,3 +103,51 @@ def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=F
             return '\n'.join(extracted_sentences)
     else:
         return _format_results(extracted_sentences, split)
+
+
+def get_title(text):
+    sentences = _clean_text_by_sentences(text)
+
+    if len(sentences) == 0:
+        return ""
+
+    if len(sentences) == 1:
+        return _format_results(sentences, False)
+
+    sen_word_count = get_word_count(_format_results(sentences, True))
+    indices_delete=[]
+
+    for i in range(len(sen_word_count)):
+        #print(sen_word_count[i][1])
+        if sen_word_count[i][1] > 10:
+            indices_delete.append(i)
+
+    sen_word_count = [i for j, i in enumerate(sen_word_count) if j not in indices_delete]
+
+    #print(len(sen_word_count))
+
+    if len(sen_word_count) == 0:
+        return ""
+
+    if len(sen_word_count) == 1:
+        return sen_word_count[0][0]
+
+    keyword_list = keywords(_format_results(sentences, False), words=4, split=True)
+    #print(keyword_list)
+    title_score = [0, 0]
+
+    for sen_tuple in sen_word_count:
+        #print(sen_tuple[0])
+        temp_score = 0
+        index = sen_word_count.index(sen_tuple)
+        count = 0
+        for word in sen_tuple[0].split():
+            if word in keyword_list:
+                count += 1
+        temp_score = count/sen_tuple[1]
+        #print(temp_score)
+        #print(sen_tuple[1])
+        if temp_score > title_score[1]:
+            title_score = [index, temp_score]
+
+    return sen_word_count[title_score[0]][0]
