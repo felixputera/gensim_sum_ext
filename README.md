@@ -9,5 +9,6 @@ Python library to extend gensim's *summarization* library
 ## Installation
 1. Install Python 3
 2. Install setuptools
-3. Clone this repository
-4. Install dependencies </br> `$ pip install requirements.txt `
+3. Install [Stanford CoreNLP](http://stanfordnlp.github.io/CoreNLP/)
+4. Clone this repository
+5. Install dependencies </br> `$ pip install requirements.txt `
