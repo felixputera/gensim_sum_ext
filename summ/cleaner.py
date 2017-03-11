@@ -1,8 +1,10 @@
 import logging
 import re
+
 from pycorenlp import StanfordCoreNLP
 from gensim.parsing.preprocessing import preprocess_documents
 from gensim.summarization.textcleaner import merge_syntactic_units, join_words
+
 
 logger = logging.getLogger('summa.preprocessing.cleaner')
 
