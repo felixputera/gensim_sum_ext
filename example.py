@@ -3,7 +3,7 @@ from gensim.summarization import keywords
 from summ.summarizer import summarize, get_title
 
 
-with open('example.txt') as opened_txt:
+with open('example.txt', encoding="utf8") as opened_txt:
     to_be_summarized = opened_txt.read()
 
 print(to_be_summarized)

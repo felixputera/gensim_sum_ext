@@ -17,10 +17,3 @@ def get_sentence_from_number(sum_number, text):
     for i in sum_number:
         sum_sentences.append(sentences[i])
     return sum_sentences
-
-def get_word_count(sentences):
-    sentence_word_length = []
-    for sen in sentences:
-        temp_tuple = (sen, len(sen.split()))
-        sentence_word_length.append(temp_tuple)
-    return sentence_word_length

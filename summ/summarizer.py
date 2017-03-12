@@ -1,5 +1,6 @@
 import logging
 import re
+import json
 
 from pycorenlp import StanfordCoreNLP
 from gensim.summarization.pagerank_weighted import pagerank_weighted as _pagerank
@@ -11,7 +12,7 @@ from gensim.summarization.keywords import keywords
 from gensim.corpora import Dictionary
 
 from .cleaner import clean_text_by_sentences as _clean_text_by_sentences
-from .get_sentences import get_extracted_number,get_sentence_from_number, get_word_count
+from .get_sentences import get_extracted_number,get_sentence_from_number
 
 INPUT_MIN_LENGTH = 10
 
@@ -94,8 +95,8 @@ def summarize(text, ratio=0.2, word_count=None, split=False, omit_placeholders=F
         extracted_sentences = _format_results(extracted_sentences, False)
         sentences_list = '\n'.join(sentences_list)
         sentences_original = '\n'.join(sentences_original)
-        extracted_sentences_number = get_extracted_number(extracted_sentences, sentences_list) 
-        print(extracted_sentences_number)
+        extracted_sentences_number = get_extracted_number(extracted_sentences, sentences_list)
+        #print(extracted_sentences_number)
         extracted_sentences = get_sentence_from_number(extracted_sentences_number, sentences_original)
         if split:
             return extracted_sentences
@@ -114,35 +115,35 @@ def get_title(text):
     if len(sentences) == 1:
         return _format_results(sentences, False)
 
-    sen_word_count = get_word_count(_format_results(sentences, True))
-    indices_delete=[]
+    sentence_tokenized = _tokenize_sentence(_format_results(sentences, True))
+    indices_delete = []
 
-    for i in range(len(sen_word_count)):
+    for i in range(len(sentence_tokenized)):
         #print(sen_word_count[i][1])
-        if sen_word_count[i][1] > 10:
+        if sentence_tokenized[i][1] > 10:
             indices_delete.append(i)
 
-    sen_word_count = [i for j, i in enumerate(sen_word_count) if j not in indices_delete]
+    sentence_tokenized = [i for j, i in enumerate(sentence_tokenized) if j not in indices_delete]
 
     #print(len(sen_word_count))
 
-    if len(sen_word_count) == 0:
+    if len(sentence_tokenized) == 0:
         return ""
 
-    if len(sen_word_count) == 1:
-        return sen_word_count[0][0]
+    if len(sentence_tokenized) == 1:
+        return sentence_tokenized[0][0]
 
     keyword_list = keywords(_format_results(sentences, False), words=4, split=True)
     #print(keyword_list)
     title_score = [0, 0]
 
-    for sen_tuple in sen_word_count:
+    for sen_tuple in sentence_tokenized:
         #print(sen_tuple[0])
         temp_score = 0
-        index = sen_word_count.index(sen_tuple)
+        index = sentence_tokenized.index(sen_tuple)
         count = 0
-        for word in sen_tuple[0].split():
-            if word in keyword_list:
+        for word_pos in sen_tuple[2]:
+            if word_pos[0] in keyword_list:
                 count += 1
         temp_score = count/sen_tuple[1]
         #print(temp_score)
@@ -150,4 +151,24 @@ def get_title(text):
         if temp_score > title_score[1]:
             title_score = [index, temp_score]
 
-    return sen_word_count[title_score[0]][0]
+    return sentence_tokenized[title_score[0]][0]
+
+def _tokenize_sentence(sentence_list):
+    nlp = StanfordCoreNLP('http://localhost:9000')
+    sentence_tokens_list = []
+
+    for sen in sentence_list:
+        token_count = 0
+        token_pos_list = []
+        tagged_tokens = nlp.annotate(sen, properties={
+            'annotators': 'pos',
+            'outputFormat': 'json'
+        })
+        for token in tagged_tokens['sentences'][0]['tokens']:
+            token_count += 1
+            token_pos_list.append((token['word'].lower(), token['pos']))
+        temp_tuple = (sen, token_count, token_pos_list)
+        #print(temp_tuple)
+        sentence_tokens_list.append(temp_tuple)
+
+    return sentence_tokens_list
