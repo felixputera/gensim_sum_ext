@@ -11,7 +11,7 @@ setup(
   author = 'Felix Putera',
   author_email = 'felixputera@gmail.com',
   url = 'https://github.com/felixputera/gensim_sum_ext/',
-  download_url = 'https://github.com/felixputera/gensim_sum_ext/archive/0.1.1.tar.gz',
+  download_url = 'https://github.com/felixputera/gensim_sum_ext/archive/0.1.2.tar.gz',
   keywords = '',
   classifiers = [],
 )
