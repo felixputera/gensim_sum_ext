@@ -6,7 +6,7 @@ setup(
   description = 'Extension for gensim summarization library',
   author = 'Felix Putera',
   author_email = 'felixputera@gmail.com',
-  url = 'https://github.com/felixputera/gensim_sum_ext',
+  url = 'https://github.com/felixputera/gensim_sum_ext/archive/0.1.tar.gz',
   download_url = '',
   keywords = '',
   classifiers = [],
