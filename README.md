@@ -7,8 +7,6 @@ Python library to extend gensim's *summarization* library
 * Added summarizer parameter to give user option to ignore placeholders element inside squarebrackets, i.e. [FORMULA], when calculating sentences scores
 
 ## Installation
-1. Install Python 3
-2. Install setuptools
-3. Install [Stanford CoreNLP](http://stanfordnlp.github.io/CoreNLP/)
-4. Clone this repository
-5. Install dependencies </br> `$ pip install requirements.txt `
+1. Make sure you have Python 3 & setuptools installed
+2. Install [Stanford CoreNLP](http://stanfordnlp.github.io/CoreNLP/)
+3. Install with pip</br> `$ pip install gensim_sum_ext `
