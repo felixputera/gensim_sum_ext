@@ -10,3 +10,9 @@ Python library to extend gensim's *summarization* library
 1. Make sure you have Python 3 & setuptools installed
 2. Install [Stanford CoreNLP](http://stanfordnlp.github.io/CoreNLP/)
 3. Install with pip</br> `$ pip install gensim_sum_ext `
+
+## (Optional) Running Demo Webpage
+1. Navigate to *example* directory</br> `$ cd example `
+2. Install pip requirements</br> `$ pip install requirements.txt `
+3. Run the webserver</br> `$ python run.py `
+4. The webpage will be available in *127.0.0.1:5000*

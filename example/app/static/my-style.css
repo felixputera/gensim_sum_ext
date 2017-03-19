@@ -1,0 +1,9 @@
+.row.customrow{
+    background: #eee;
+    border-radius: 5px;
+    padding: 2em;
+}
+
+.container .text-muted{
+    font-size: 12px;
+}

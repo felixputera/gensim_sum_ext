@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>Summarization Demo</title>
+        <link href="{{ url_for('static', filename='bootstrap-3.3.7-dist/css/bootstrap.min.css') }}" rel="stylesheet" />
+        <link href="{{ url_for('static', filename='sticky-footer.css') }}" rel="stylesheet" />
+        <link href="{{ url_for('static', filename='my-style.css') }}" rel="stylesheet" />
+    </head>
+    <body>
+        
+        <div class="container">
+            <div class="page-header">
+                <h2>Summarization Demo</h2>
+            </div>
+            <form>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label>Text Input</label>
+                    {{ form.text(class='form-control', placeholder='Text', rows=8) }} 
+                </div>
+                <div class="form-group">
+                    <label> Summary Percentage: </label> {{ form.percentage(maxlength=3, class='form-control', placeholder='0-100') }}
+                </div>
+                <div class="form-group">
+                    <label> Number of Keywords: </label> {{ form.keywords_no(class='form-control', placeholder='>0') }}
+                </div>
+                <div class="checkbox"> 
+                    <label>  
+                        {{ form.rm_placeholders }} Remove Placeholders
+                    </label>  
+                </div>
+                <p> <input type="submit" value="Summarize" class="btn btn-default"></p>
+            </form>
+            <img src="{{ url_for('static', filename='rotate.gif') }}" height="36" width="36" id="loader"></img>
+
+            <div class="row customrow" id="result-div">
+                <p><b>Title:</b> <text id="title"></text></p>
+                <p><b>Keywords:</b> <text id="keywords"></text></p>
+                <p><b>Summary: </b>(<mark><em>Highlighted</em></mark>) </p>
+                <p id="summary"></p>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="container">
+                <p class="text-muted">Created by: Felix Putera (<a href="https://github.com/felixputera">GitHub Profile</a>)</p>
+            </div>
+        </footer>
+
+        <script type=text/javascript src="{{ url_for('static', filename='jquery-3.2.0.js') }}"></script>
+        <script>
+            $("#loader").hide();
+            $("#result-div").hide();
+            $(document).ready(function() {
+                $('form').submit(function (e) {
+                    var url = "{{ url_for('check') }}";
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: $('form').serialize(), 
+                        beforeSend: function() {
+                            $("#loader").show();
+                            $("#result-div").hide();
+                        },
+                        success: function (data) {
+                            $("#loader").hide();
+                            $("#result-div").show();
+                            document.getElementById("title").innerHTML = data.data.title;
+                            document.getElementById("keywords").textContent = data.data.keywords;
+                            document.getElementById("summary").innerHTML = data.data.summary;
+                        }
+                    });
+                    e.preventDefault(); // block the traditional submission of the form.
+                });
+                // Inject our CSRF token into our AJAX request.
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ form.csrf_token._value() }}")
+                        }
+                    }
+                })
+            });
+        </script>
+    </body>
+</html>
