@@ -14,6 +14,6 @@ Python library to extend gensim's *summarization* library
 
 ## (Optional) Running Demo Webpage
 1. Navigate to *example* directory</br> `$ cd example `
-2. Install pip requirements</br> `$ pip install requirements.txt `
+2. Install pip requirements</br> `$ pip install -r requirements.txt `
 3. Run the webserver</br> `$ python run.py `
 4. The webpage will be available in *127.0.0.1:5000*
